@@ -1,6 +1,5 @@
-
 const jwt = require('jsonwebtoken');
-const userModel = require('../model/userModel');
+const userModel = require('../models/userModel');
 const jwtTokenModel = require('../models/jwtTokenModel')
 
 
