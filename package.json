@@ -1,0 +1,19 @@
+{
+  "name": "oneapp",
+  "version": "1.0.0",
+  "description": "The project can gather all my learning projects in one app. using the MongoDB database for storing all project details",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zaptariz/oneApp.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zaptariz/oneApp/issues"
+  },
+  "homepage": "https://github.com/zaptariz/oneApp#readme"
+}
