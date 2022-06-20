@@ -1,6 +1,6 @@
 const router = require('express').Router()
-const signup  = require('./useApi')
+const userApi  = require('./useApi')
 
-router.use('/user',signup)
+router.use('/user',userApi)
 
 module.exports = router

@@ -21,4 +21,16 @@ router.post('/signup', upload.single('profilephoto'), (req, res) => {
     }
 })
 
+router.post('/signin', (req, res) => {
+    try {
+        let { error } = joiValidation.signinSchema(req.body)
+        if(error){
+            return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.validationFormat(error, 'register', StatusCodes.BAD_REQUEST))
+        }
+        return userController.signin(req,res)
+    } catch (error) {
+        res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signup', StatusCodes.BAD_REQUEST))
+    }
+})
+
 module.exports = router

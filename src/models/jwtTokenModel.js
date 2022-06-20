@@ -10,15 +10,8 @@ const jwtToken = mongoose.Schema({
     tokenId: {
         type: String,
         index: true
-    },
-    sessionStatus: {
-        type: Boolean,
-        default: false
     }
 })
 
 //create a model for JWT token
-const model = new mongoose.model('jwttoken', jwtToken)
-
-//export the model
-exports.jwtToken = model 
+exports.jwtTokenModel = new mongoose.model('jwttoken', jwtToken)
