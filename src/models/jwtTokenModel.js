@@ -21,4 +21,4 @@ const jwtToken = mongoose.Schema({
 const model = new mongoose.model('jwttoken', jwtToken)
 
 //export the model
-exports.jwtToken = model
+exports.jwtToken = model 
