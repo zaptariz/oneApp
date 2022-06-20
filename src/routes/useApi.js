@@ -41,4 +41,24 @@ router.delete('/signout', adminAuthenticator,(req, res) => {
         res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signout', StatusCodes.BAD_REQUEST))
     }
 })
+
+router.get('/dashboard', adminAuthenticator,(req, res) => {
+    try {
+        return userController.dashboard(req,res)
+    } catch (error) {
+        res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signout', StatusCodes.BAD_REQUEST))
+    }
+})
+
+
+router.get('/selfTab',(req, res) => {
+    try {
+        return userController.selfTab(req,res)
+    } catch (error) {
+        res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signout', StatusCodes.BAD_REQUEST))
+    }
+})
+
+
+
 module.exports = router

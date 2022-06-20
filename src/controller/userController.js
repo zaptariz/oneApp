@@ -1,10 +1,11 @@
 const bcrypt = require('bcrypt')
-const { StatusCodes } = require('http-status-codes')
+const jsonwebtoken = require('jsonwebtoken')
 const messageFormatter = require('../utils/messageFormatter')
+const { StatusCodes } = require('http-status-codes')
 const { userModel } = require('../models/userModel')
 const { fileformatter } = require('../middleware/fileFormatter')
-const jsonwebtoken = require('jsonwebtoken')
 const { jwtTokenModel } = require('../models/jwtTokenModel')
+const { projectModel } = require('../models/projectModel')
 exports.signup = async (req, res) => {
     try {
         let request = req.body
@@ -86,10 +87,25 @@ exports.signin = async (req, res) => {
 exports.signout = async (req, res) => {
     try {
         //Delete the  Jwt token for log out
-        let response = await jwtTokenModel.deleteMany({ token: req.headers.authorization })
+        await jwtTokenModel.deleteMany({ token: req.headers.authorization })
         res.status(StatusCodes.OK).send(messageFormatter.successFormat('', 'logout', StatusCodes.OK, " logged out successfully "))
     }
     catch (error) {
         return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'login', StatusCodes.BAD_REQUEST))
+    }
+}
+
+exports.dashboard = async (req, res) => {
+    try {
+        let findUserByHeader = await jwtTokenModel.findOne({ id: req.headers.authtoken })
+        let getSignedUser = await userModel.findOne({ userId: findUserByHeader.userId })
+        let responsePayload = {
+            name: getSignedUser.firstName + " " + getSignedUser.lastName,
+            EmailId: getSignedUser.emailId,
+            profilePhoto: getSignedUser.profilePhoto
+        }
+        res.status(StatusCodes.OK).send(messageFormatter.successFormat(responsePayload, 'dashboard', StatusCodes.OK, "Welcome "))
+    } catch (error) {
+        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'dashboard', StatusCodes.BAD_REQUEST))
     }
 }
