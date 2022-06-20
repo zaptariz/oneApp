@@ -82,3 +82,14 @@ exports.signin = async (req, res) => {
         res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signin', StatusCodes.BAD_REQUEST))
     }
 }
+
+exports.signout = async (req, res) => {
+    try {
+        //Delete the  Jwt token for log out
+        let response = await jwtTokenModel.deleteMany({ token: req.headers.authorization })
+        res.status(StatusCodes.OK).send(messageFormatter.successFormat('', 'logout', StatusCodes.OK, " logged out successfully "))
+    }
+    catch (error) {
+        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'login', StatusCodes.BAD_REQUEST))
+    }
+}

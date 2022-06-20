@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
-const userModel = require('../models/userModel');
-const jwtTokenModel = require('../models/jwtTokenModel')
+const {userModel} = require('../models/userModel');
+const {jwtTokenModel} = require('../models/jwtTokenModel');
+const { StatusCodes } = require('http-status-codes');
+const messageFormatter = require('../utils/messageFormatter')
 
 
 /*********************************
@@ -13,12 +15,12 @@ const jwtTokenModel = require('../models/jwtTokenModel')
  * @returns {function}
  * 
  *********************************/
-const adminAuth = async (req, res, next) => {
+const adminAuthenticator = async (req, res, next) => {
     try {
         let tokenFromRequestHeader = req.headers.authtoken
         let verifyToken = await new jwt.verify(tokenFromRequestHeader, "secret")
-        let checkToken = await new jwtTokenModel.findOne({ tokenId: tokenFromRequestHeader, userId: verifyToken.id })
-        if (!checkToken && checkToken.sessionStatus) {
+        let checkToken = await jwtTokenModel.findOne({ tokenId: tokenFromRequestHeader, userId: verifyToken.id })
+        if (!checkToken && checkToken.isDeleted) {
             throw new Error(" Token not found ")
         }
         else {
@@ -30,8 +32,8 @@ const adminAuth = async (req, res, next) => {
         }
     }
     catch (error) {
-        return res.status(401).json({ "error_response  ": error.message });
+        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message,'tokenValidation', StatusCodes.BAD_REQUEST));
     }
 };
 
-module.exports = adminAuth
+module.exports = adminAuthenticator
