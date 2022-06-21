@@ -1,7 +1,7 @@
 const Joi = require('joi')
 Joi.objectId = require('joi-objectid')(Joi)
 
-exports.signupSchema = (req) => {
+exports.signup = (req) => {
     let schema = Joi.object({
         firstName: Joi.string().alphanum().min(3).max(30).required(),
         lastName: Joi.string().alphanum().min(3).max(30).required(),
@@ -21,6 +21,16 @@ exports.signin = (req) => {
 }
 
 exports.addProject = (req) => {
+    let schema = Joi.object({
+        title: Joi.string().min(10).max(50).required(),
+        githublink: Joi.string().uri().required(),
+        demolink:Joi.string().uri().required(),
+        description: Joi.string().min(10).max(10000).required()
+    })
+    return schema.validate(req, { abortEarly: false });
+}
+
+exports.updateProject = (req) => {
     let schema = Joi.object({
         title: Joi.string().min(10).max(50).required(),
         githublink: Joi.string().uri().required(),

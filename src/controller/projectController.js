@@ -84,3 +84,19 @@ exports.othersProject = async (req, res) => {
         return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'othersProject', StatusCodes.BAD_REQUEST))
     }
 }
+
+exports.updateProjectDetails = async (req, res) => {
+    try {
+        let userIdFromProject = await projectModel.findOne({ _id: req.params.id })
+        let userIdFromToken = await jwtTokenModel.findOne({ id: userIdFromProject.userId })
+        if (!(JSON.stringify(userIdFromProject.userId) == JSON.stringify(userIdFromToken.userId))) {
+            let errorMessage = 'Unauthorized access, you are not a authorized person to modifiy this project '
+            return res.status(StatusCodes.UNAUTHORIZED).send(messageFormatter.errorMsgFormat(errorMessage, 'updateProject', StatusCodes.UNAUTHORIZED))
+        }
+        await projectModel.findOneAndUpdate({ _id: req.params.id },req.body)
+        console.log(await projectModel.findOne({ id: req.params.id }))
+        res.status(StatusCodes.OK).send('nothing')
+    } catch (error) {
+        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'updateProject', StatusCodes.BAD_REQUEST))
+    }
+}

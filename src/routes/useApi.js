@@ -12,7 +12,7 @@ const upload = multer({ storage: fileUploader.fileStorage, fileFilter: fileUploa
 
 router.post('/signup', upload.single('profilephoto'), (req, res) => {
     try {
-        let { error } = joiValidation.signupSchema(req.body)
+        let { error } = joiValidation.signup(req.body)
         if(error){
             return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.validationFormat(error, 'signup', StatusCodes.BAD_REQUEST))
         }
