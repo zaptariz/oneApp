@@ -24,7 +24,7 @@ router.post('/signup', upload.single('profilephoto'), (req, res) => {
 
 router.post('/signin', (req, res) => {
     try {
-        let { error } = joiValidation.signinSchema(req.body)
+        let { error } = joiValidation.signin(req.body)
         if(error){
             return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.validationFormat(error, 'signin', StatusCodes.BAD_REQUEST))
         }

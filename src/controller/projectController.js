@@ -6,6 +6,7 @@ const jsonwebtoken = require('jsonwebtoken')
 const { jwtTokenModel } = require('../models/jwtTokenModel')
 const isGithubURL = require('is-github-url')
 const validurl = require('valid-url')
+const { userModel } = require('../models/userModel')
 
 
 exports.selfTab = async (req, res) => {
@@ -25,30 +26,38 @@ exports.selfTab = async (req, res) => {
 exports.addProjects = async (req, res) => {
     try {
         let request = req.body
-        // let getUserIdFromToken = await jwtTokenModel.findOne({ id: req.headers.authtoken })
+        let getUserIdFromToken = await jwtTokenModel.findOne({ id: req.headers.authtoken })
         // let checkUserIsSignedUser = await jwtTokenModel.findOne({ id: req.headers.authtoken })
         // if(checkUserIsSignedUser.userId == checkUserIsSignedUser)
-        console.log("asjddaskjdhasdasdkasdkjhasdd asdkashhdkjashd kdkhkjashd :",req)
-        let checkURL = validurl.isUri(request.demolink)
-        console.log( " checkURL : ",checkURL)
-        let checkGitURL = isGithubURL(request.githublink)
-        if (!checkURL)
+        if (!validurl.isUri(request.demolink))
             throw new Error('check the Demo URL ')
-        if (!checkGitURL)
+        if (!isGithubURL(request.githublink))
             throw new Error('check the github URL ')
         else {
             let dataPayload = new projectModel({
+                userId: getUserIdFromToken.userId,
                 title: request.title,
-                demoLink: request.demolink,
-                githubLink: request.githublink,
+                demolink: request.demolink,
+                githublink: request.githublink,
                 description: request.description,
                 descriptionByMedia: {
-                    fileName: request.file.originalname,
-                    fileType: request.file.mimetype,
-                    fileSize: fileformatter(request.file.size, 2)
+                    fileName: req.file.originalname,
+                    fileType: req.file.mimetype,
+                    fileSize: fileformatter(req.file.size, 2)
                 }
             })
-            res.status(200).send(messageFormatter.successFormat(dataPayload, 'addProjects', StatusCodes.OK, " user is a "))
+            await projectModel(dataPayload).save()
+            let responsePayload = {
+                title: dataPayload.title,
+                demolink: dataPayload.demolink,
+                githublink: dataPayload.githublink,
+                description: dataPayload.description,
+                descriptionByMedia: {
+                    fileName: req.file.originalname,
+                    fileType: req.file.mimetype,
+                }
+            }
+            res.status(200).send(messageFormatter.successFormat(responsePayload, 'addProjects', StatusCodes.OK, "Project was added successfully"))
         }
     } catch (error) {
         res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'addProjects', StatusCodes.BAD_REQUEST))
@@ -57,14 +66,22 @@ exports.addProjects = async (req, res) => {
 
 exports.othersProject = async (req, res) => {
     try {
-        let findUserByHeader = await jwtTokenModel.findOne({ id: req.headers.authtoken })
-        let getSignedUser = await projectModel.find({ userId: findUserByHeader.userId })
-        if (getSignedUser) {
-            throw new Error(' You dont have any projects, ')
+        let AllTheOthersProjects = []
+        let verifyToken = await jsonwebtoken.verify(req.headers.authtoken, "secret")
+        let allProjects = await projectModel.find({})
+        console.log('allProjects : ', allProjects)
+        if (!allProjects) {
+            throw new Error(' now project here still now ')
         }
-        res.status(StatusCodes.OK).send(messageFormatter.successFormat(getSignedUser, 'selfTab', StatusCodes.OK, 'your all projects'))
+        else {
+            allProjects.forEach(projects => {
+                if (verifyToken.id != projects.userId)
+                    AllTheOthersProjects.push(projects)
+            });
+            res.status(StatusCodes.OK).send(messageFormatter.successFormat(AllTheOthersProjects, 'othersProject', StatusCodes.OK, 'All Others projects'))
+        }
     }
     catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'selfTab', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'othersProject', StatusCodes.BAD_REQUEST))
     }
 }
