@@ -18,7 +18,7 @@ router.post('/signup', upload.single('profilephoto'), (req, res) => {
         }
         return userController.signup(req,res)
     } catch (error) {
-        res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signup', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signup', StatusCodes.BAD_REQUEST))
     }
 })
 
@@ -30,7 +30,7 @@ router.post('/signin', (req, res) => {
         }
         return userController.signin(req,res)
     } catch (error) {
-        res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signin', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signin', StatusCodes.BAD_REQUEST))
     }
 })
 
@@ -38,7 +38,7 @@ router.delete('/signout', adminAuthenticator,(req, res) => {
     try {
         return userController.signout(req,res)
     } catch (error) {
-        res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signout', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signout', StatusCodes.BAD_REQUEST))
     }
 })
 
@@ -46,7 +46,7 @@ router.get('/dashboard', adminAuthenticator,(req, res) => {
     try {
         return userController.dashboard(req,res)
     } catch (error) {
-        res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signout', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signout', StatusCodes.BAD_REQUEST))
     }
 })
 

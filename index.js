@@ -2,13 +2,8 @@ const express = require('express')
 const cors = require('cors')
 const mongoose = require('mongoose')
 const { config } = require('./src/configuration/config')
-var bodyParser = require('body-parser')
-// const dbConnection = require('./src/configuration/dbConfig')
-
 require('dotenv').config()
 const application = express()
-application.use(bodyParser.urlencoded({ extended: false }))
-application.use(bodyParser.json())
 application.use(express.json())
 application.use(cors())
 const router = require('./src/routes/index')
@@ -21,8 +16,6 @@ const db = () => {
         })
     } catch (error) { console.log(error.message) }
 }
-//invoke the DB
-// dbConnection.db()
 db();
 
 application.use('/api/v1', (req, res, next) => {

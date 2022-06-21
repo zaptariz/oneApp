@@ -12,7 +12,7 @@ router.get('/selfTab', (req, res) => {
     try {
         return projectController.selfTab(req, res)
     } catch (error) {
-        res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'selfTab', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'selfTab', StatusCodes.BAD_REQUEST))
     }
 })
 
@@ -22,14 +22,13 @@ const upload = multer({
 
 router.post('/addproject', adminAuthenticator, upload.single('desc'), (req, res) => {
     try {
-        console.log(req.body)
         let { error } = joiValidation.addProject(req.body)
         if (error) {
             return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.validationFormat(error, 'addProjectJoiValidation', StatusCodes.BAD_REQUEST))
         }
         return projectController.addProjects(req, res)
     } catch (error) {
-        res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'selfTab', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'selfTab', StatusCodes.BAD_REQUEST))
     }
 })
 
@@ -37,7 +36,7 @@ router.get('/allprojects', adminAuthenticator, (req, res) => {
     try {
         return projectController.othersProject(req, res)
     } catch (error) {
-        res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'allProjects', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'allProjects', StatusCodes.BAD_REQUEST))
     }
 })
 

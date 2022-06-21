@@ -38,10 +38,10 @@ exports.signup = async (req, res) => {
                 LastName: dataPayload.lastName,
                 EMailID: dataPayload.emailId
             }
-            res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.successFormat(responsePayload, 'signup', StatusCodes.CREATED, 'registration successfully completed'))
+            return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.successFormat(responsePayload, 'signup', StatusCodes.CREATED, 'registration successfully completed'))
         }
     } catch (error) {
-        res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signup', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signup', StatusCodes.BAD_REQUEST))
     }
 }
 
@@ -80,7 +80,7 @@ exports.signin = async (req, res) => {
         else throw new Error('Emailid not registered with records, signup first')
     }
     catch (error) {
-        res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signin', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signin', StatusCodes.BAD_REQUEST))
     }
 }
 
@@ -88,7 +88,7 @@ exports.signout = async (req, res) => {
     try {
         //Delete the  Jwt token for log out
         await jwtTokenModel.deleteMany({ token: req.headers.authorization })
-        res.status(StatusCodes.OK).send(messageFormatter.successFormat('', 'logout', StatusCodes.OK, " logged out successfully "))
+        return res.status(StatusCodes.OK).send(messageFormatter.successFormat('', 'logout', StatusCodes.OK, " logged out successfully "))
     }
     catch (error) {
         return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'login', StatusCodes.BAD_REQUEST))
@@ -104,7 +104,7 @@ exports.dashboard = async (req, res) => {
             EmailId: getSignedUser.emailId,
             profilePhoto: getSignedUser.profilePhoto
         }
-        res.status(StatusCodes.OK).send(messageFormatter.successFormat(responsePayload, 'dashboard', StatusCodes.OK, "Welcome "))
+        return res.status(StatusCodes.OK).send(messageFormatter.successFormat(responsePayload, 'dashboard', StatusCodes.OK, "Welcome "))
     } catch (error) {
         return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'dashboard', StatusCodes.BAD_REQUEST))
     }

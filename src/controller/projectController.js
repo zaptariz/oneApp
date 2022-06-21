@@ -16,7 +16,7 @@ exports.selfTab = async (req, res) => {
         if (getSignedUser) {
             throw new Error(' You dont have any projects ')
         }
-        res.status(StatusCodes.OK).send(messageFormatter.successFormat(getSignedUser, 'selfTab', StatusCodes.OK, 'your all projects'))
+        return res.status(StatusCodes.OK).send(messageFormatter.successFormat(getSignedUser, 'selfTab', StatusCodes.OK, 'your all projects'))
     }
     catch (error) {
         return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'selfTab', StatusCodes.NOT_FOUND))
@@ -57,10 +57,10 @@ exports.addProjects = async (req, res) => {
                     fileType: req.file.mimetype,
                 }
             }
-            res.status(200).send(messageFormatter.successFormat(responsePayload, 'addProjects', StatusCodes.OK, "Project was added successfully"))
+            return res.status(200).send(messageFormatter.successFormat(responsePayload, 'addProjects', StatusCodes.OK, "Project was added successfully"))
         }
     } catch (error) {
-        res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'addProjects', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'addProjects', StatusCodes.BAD_REQUEST))
     }
 }
 
@@ -69,7 +69,6 @@ exports.othersProject = async (req, res) => {
         let AllTheOthersProjects = []
         let verifyToken = await jsonwebtoken.verify(req.headers.authtoken, "secret")
         let allProjects = await projectModel.find({})
-        console.log('allProjects : ', allProjects)
         if (!allProjects) {
             throw new Error(' now project here still now ')
         }
@@ -78,7 +77,7 @@ exports.othersProject = async (req, res) => {
                 if (verifyToken.id != projects.userId)
                     AllTheOthersProjects.push(projects)
             });
-            res.status(StatusCodes.OK).send(messageFormatter.successFormat(AllTheOthersProjects, 'othersProject', StatusCodes.OK, 'All Others projects'))
+            return res.status(StatusCodes.OK).send(messageFormatter.successFormat(AllTheOthersProjects, 'othersProject', StatusCodes.OK, 'All Others projects'))
         }
     }
     catch (error) {
