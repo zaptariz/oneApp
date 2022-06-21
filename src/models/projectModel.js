@@ -9,11 +9,11 @@ const projectSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    demoLink: {
+    demolink: {
         type: String,
         required: true
     },
-    gitHubLink: {
+    githublink: {
         type: String,
         required: true
     },
