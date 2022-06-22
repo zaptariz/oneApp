@@ -22,11 +22,22 @@ exports.selfTab = async (req, res) => {
                 Project_Name: getSignedUser.title,
                 github_Link: getSignedUser
             }
-            return res.status(StatusCodes.OK).send(messageFormatter.successFormat(getSignedUser, 'selfTab', StatusCodes.OK, 'your all projects'))
+            return res.status(StatusCodes.OK)
+                .send(messageFormatter.successFormat(
+                    getSignedUser,
+                    'selfTab',
+                    StatusCodes.OK,
+                    'your all projects'
+                ))
         }
     }
     catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'selfTab', StatusCodes.NOT_FOUND))
+        return res.status(StatusCodes.BAD_REQUEST)
+            .send(messageFormatter.errorMsgFormat(
+                error.message,
+                'selfTab',
+                StatusCodes.NOT_FOUND
+            ))
     }
 }
 
@@ -55,11 +66,22 @@ exports.othersProject = async (req, res) => {
                     projectDescriptionByMedia: element.descriptionByMedia
                 })
             })
-            return res.status(StatusCodes.OK).send(messageFormatter.successFormat(responsePayload, 'othersProject', StatusCodes.OK, 'Now you can see all the Others projects'))
+            return res.status(StatusCodes.OK)
+                .send(messageFormatter.successFormat(
+                    responsePayload,
+                    'othersProject',
+                    StatusCodes.OK,
+                    'Now you can see all the Others projects'
+                ))
         }
     }
     catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'othersProject', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST)
+            .send(messageFormatter.errorMsgFormat(
+                error.message,
+                'othersProject',
+                StatusCodes.BAD_REQUEST
+            ))
     }
 }
 
@@ -96,10 +118,21 @@ exports.addProjects = async (req, res) => {
                     fileType: req.file.mimetype,
                 }
             }
-            return res.status(200).send(messageFormatter.successFormat(responsePayload, 'addProjects', StatusCodes.OK, "Project was added successfully"))
+            return res.status(200).
+                send(messageFormatter.successFormat(
+                    responsePayload,
+                    'addProjects',
+                    StatusCodes.OK,
+                    "Project was added successfully"
+                ))
         }
     } catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'addProjects', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST)
+            .send(messageFormatter.errorMsgFormat(
+                error.message,
+                'addProjects',
+                StatusCodes.BAD_REQUEST
+            ))
     }
 }
 
@@ -109,7 +142,12 @@ exports.updateProjectDetails = async (req, res) => {
         let userIdFromToken = await jwtTokenModel.findOne({ id: userIdFromProject.userId })
         if (!(JSON.stringify(userIdFromProject.userId) == JSON.stringify(userIdFromToken.userId))) {
             let errorMessage = 'Unauthorized access, you are not a authorized person to modifiy this project '
-            return res.status(StatusCodes.UNAUTHORIZED).send(messageFormatter.errorMsgFormat(errorMessage, 'updateProject', StatusCodes.UNAUTHORIZED))
+            return res.status(StatusCodes.UNAUTHORIZED)
+                .send(messageFormatter.errorMsgFormat(
+                    errorMessage,
+                    'updateProject',
+                    StatusCodes.UNAUTHORIZED
+                ))
         }
         await projectModel.findOneAndUpdate({ _id: req.params.id }, req.body)
         let dataPayload = await projectModel.findOne({ _id: req.params.id })
@@ -125,7 +163,13 @@ exports.updateProjectDetails = async (req, res) => {
                     fileType: req.file.mimetype,
                 }
             }
-            res.status(StatusCodes.OK).send(messageFormatter.successFormat(responsePayload, 'updateProjectDetails', StatusCodes.OK, 'Your changes are updated'))
+            res.status(StatusCodes.OK)
+                .send(messageFormatter.successFormat(
+                    responsePayload,
+                    'updateProjectDetails',
+                    StatusCodes.OK,
+                    'Your changes are updated'
+                ))
         }
         else {
             //without media updation response
@@ -135,10 +179,21 @@ exports.updateProjectDetails = async (req, res) => {
                 githublink: dataPayload.githublink,
                 description: dataPayload.description,
             }
-            res.status(StatusCodes.OK).send(messageFormatter.successFormat(responsePayload, 'updateProjectDetails', StatusCodes.OK, 'Your changes are updated'))
+            res.status(StatusCodes.OK)
+                .send(messageFormatter.successFormat(
+                    responsePayload,
+                    'updateProjectDetails',
+                    StatusCodes.OK,
+                    'Your changes are updated'
+                ))
         }
     } catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'updateProject', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST)
+            .send(messageFormatter.errorMsgFormat(
+                error.message,
+                'updateProject',
+                StatusCodes.BAD_REQUEST
+            ))
     }
 }
 
@@ -148,11 +203,26 @@ exports.deleteProject = async (req, res) => {
         let userIdFromToken = await jwtTokenModel.findOne({ id: userIdFromProject.userId })
         if (!(JSON.stringify(userIdFromProject.userId) == JSON.stringify(userIdFromToken.userId))) {
             let errorMessage = 'Unauthorized access, you are not a authorized person to Delete this project '
-            return res.status(StatusCodes.UNAUTHORIZED).send(messageFormatter.errorMsgFormat(errorMessage, 'updateProject', StatusCodes.UNAUTHORIZED))
+            return res.status(StatusCodes.UNAUTHORIZED)
+                .send(messageFormatter.errorMsgFormat(
+                    errorMessage,
+                    'updateProject',
+                    StatusCodes.UNAUTHORIZED
+                ))
         }
         await projectModel.deleteOne({ _id: req.params.id })
-        res.status(StatusCodes.OK).send(messageFormatter.successFormat('project was deleted', 'deleteproject', StatusCodes.OK, 'project was deleted successfully'))
+        res.status(StatusCodes.OK)
+            .send(messageFormatter.successFormat(
+                'project was deleted',
+                'deleteproject',
+                StatusCodes.OK,
+                'project was deleted successfully'))
     } catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'deleteProject', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST)
+            .send(messageFormatter.errorMsgFormat(
+                error.message,
+                'deleteProject',
+                StatusCodes.BAD_REQUEST
+            ))
     }
 }

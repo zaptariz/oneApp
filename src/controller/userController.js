@@ -37,10 +37,21 @@ exports.signup = async (req, res) => {
                 LastName: dataPayload.lastName,
                 EMailID: dataPayload.emailId
             }
-            return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.successFormat(responsePayload, 'signup', StatusCodes.CREATED, 'registration successfully completed'))
+            return res.status(StatusCodes.BAD_REQUEST)
+                .send(messageFormatter.successFormat(
+                    responsePayload,
+                    'signup',
+                    StatusCodes.CREATED,
+                    'registration successfully completed'
+                ))
         }
     } catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signup', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST)
+            .send(messageFormatter.errorMsgFormat(
+                error.message,
+                'signup',
+                StatusCodes.BAD_REQUEST
+            ))
     }
 }
 
@@ -68,18 +79,25 @@ exports.signin = async (req, res) => {
                     await jwtTokenModel.findOneAndUpdate({ userId: checkEmailIsRegistered.id, tokenId: responsePayload.tokenId })
                 else
                     await jwtTokenModel(responsePayload).save()
-                return res.status(StatusCodes.OK).send(messageFormatter.successFormat(
-                    responsePayload,
-                    'login',
-                    StatusCodes.OK,
-                    `logged in successfully, Welcome ${checkEmailIsRegistered.firstName} ${checkEmailIsRegistered.lastName}`))
+                return res.status(StatusCodes.OK)
+                    .send(messageFormatter.successFormat(
+                        responsePayload,
+                        'login',
+                        StatusCodes.OK,
+                        `logged in successfully, Welcome ${checkEmailIsRegistered.firstName} ${checkEmailIsRegistered.lastName}`
+                    ))
             }
             else throw new Error('credential not matched')
         }
         else throw new Error('Emailid not registered with records, signup first')
     }
     catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signin', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST)
+            .send(messageFormatter.errorMsgFormat(
+                error.message,
+                'signin',
+                StatusCodes.BAD_REQUEST
+            ))
     }
 }
 
@@ -88,13 +106,30 @@ exports.signout = async (req, res) => {
         //Delete the  Jwt token for log out
         let logout = await jwtTokenModel.deleteMany({ tokenId: req.headers.authtoken })
         if (logout.deletedCount > 0)
-            return res.status(StatusCodes.OK).send(messageFormatter.successFormat('logged out successfully', 'logout', StatusCodes.OK, " Bubye "))
+            return res.status(StatusCodes.OK)
+                .send(messageFormatter.successFormat(
+                    'logged out successfully',
+                    'logout',
+                    StatusCodes.OK,
+                    " Bubye "
+                ))
         else {
-            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(messageFormatter.successFormat('No user logged in this id', 'logout', StatusCodes.INTERNAL_SERVER_ERROR, " No Data Found "))
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR)
+                .send(messageFormatter.successFormat(
+                    'No user logged in this id',
+                    'logout',
+                    StatusCodes.INTERNAL_SERVER_ERROR,
+                    " No Data Found "
+                ))
         }
     }
     catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'login', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST)
+            .send(messageFormatter.errorMsgFormat(
+                error.message,
+                'login',
+                StatusCodes.BAD_REQUEST
+            ))
     }
 }
 
@@ -107,8 +142,19 @@ exports.dashboard = async (req, res) => {
             EmailId: getSignedUser.emailId,
             profilePhoto: getSignedUser.profilePhoto
         }
-        return res.status(StatusCodes.OK).send(messageFormatter.successFormat(responsePayload, 'dashboard', StatusCodes.OK, "Welcome "))
+        return res.status(StatusCodes.OK)
+            .send(messageFormatter.successFormat(
+                responsePayload,
+                'dashboard',
+                StatusCodes.OK,
+                "Welcome "
+            ))
     } catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'dashboard', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST)
+            .send(messageFormatter.errorMsgFormat(
+                error.message,
+                'dashboard',
+                StatusCodes.BAD_REQUEST
+            ))
     }
 }

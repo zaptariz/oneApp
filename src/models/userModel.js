@@ -11,7 +11,8 @@ const userSchema = new mongoose.Schema({
     },
     emailId: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     password: {
         type: String,
@@ -30,11 +31,13 @@ const userSchema = new mongoose.Schema({
             type: String,
             required: true
         },
-        timestamp: {
-            type: Date,
-            default: Date.now()
-        }
     }
-})
+},
+    {
+        timestamps: {
+            createdAt: true,
+            updatedAt: true
+        }
+    })
 
-exports.userModel = new mongoose.model('user',userSchema)
+exports.userModel = new mongoose.model('user', userSchema)

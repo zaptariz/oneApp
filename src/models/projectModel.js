@@ -39,10 +39,13 @@ const projectSchema = new mongoose.Schema({
             default: Date.now()
         }
     },
-        createdAt: {
-        type: Date,
-        default: Date.now()
-    }
-})
 
-exports.projectModel = new mongoose.model('projectsByUsers',projectSchema)
+},
+    {
+        timestamps: {
+            createdAt:true,
+            updatedAt:true
+        }
+    })
+
+exports.projectModel = new mongoose.model('projectsByUsers', projectSchema)

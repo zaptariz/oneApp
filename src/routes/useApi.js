@@ -7,8 +7,8 @@ const upload = multer({ storage: fileUploader.fileStorage, fileFilter: fileUploa
 
 const router = express.Router()
 
-router.post('/signup', upload.single('profilephoto'), userValidationoMiddleware.signUp)
-router.post('/signin', userValidationoMiddleware.signIn)
+router.post('/signup', upload.single('profilephoto'), userValidationoMiddleware.signup)
+router.post('/signin', userValidationoMiddleware.signin)
 router.delete('/signout', adminAuthenticator, userValidationoMiddleware.signOut)
 router.get('/dashboard', adminAuthenticator, userValidationoMiddleware.dashboard)
 
