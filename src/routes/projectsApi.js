@@ -22,6 +22,7 @@ const upload = multer({
 
 router.post('/addproject', adminAuthenticator, upload.single('desc'), (req, res) => {
     try {
+        
         let { error } = joiValidation.addProject(req.body)
         if (error) {
             return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.validationFormat(error, 'addProjectJoiValidation', StatusCodes.BAD_REQUEST))
@@ -40,13 +41,17 @@ router.get('/allprojects', adminAuthenticator, (req, res) => {
     }
 })
 
-router.put('/updateproject/:id', adminAuthenticator, (req, res) => {
+router.put('/updateproject/:id', adminAuthenticator, upload.single('desc'), (req, res) => {
     try {
-        // let { error } = joiValidation.updateProject(req.body)
-        // if(error){
-        //     return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.validationFormat(error,'updateProjectDetails',StatusCodes.BAD_REQUEST))
-        // }
         return projectController.updateProjectDetails(req, res)
+    } catch (error) {
+        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'allProjects', StatusCodes.BAD_REQUEST))
+    }
+})
+
+router.delete('/deleteproject/:id', adminAuthenticator, upload.single('desc'), (req, res) => {
+    try {
+        return projectController.deleteProject(req, res)
     } catch (error) {
         return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'allProjects', StatusCodes.BAD_REQUEST))
     }

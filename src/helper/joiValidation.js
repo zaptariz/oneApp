@@ -29,13 +29,3 @@ exports.addProject = (req) => {
     })
     return schema.validate(req, { abortEarly: false });
 }
-
-exports.updateProject = (req) => {
-    let schema = Joi.object({
-        title: Joi.string().min(10).max(50).required(),
-        githublink: Joi.string().uri().required(),
-        demolink:Joi.string().uri().required(),
-        description: Joi.string().min(10).max(10000).required()
-    })
-    return schema.validate(req, { abortEarly: false });
-}
