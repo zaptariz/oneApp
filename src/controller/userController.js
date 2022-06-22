@@ -5,7 +5,6 @@ const { StatusCodes } = require('http-status-codes')
 const { userModel } = require('../models/userModel')
 const { fileformatter } = require('../middleware/fileFormatter')
 const { jwtTokenModel } = require('../models/jwtTokenModel')
-const { projectModel } = require('../models/projectModel')
 exports.signup = async (req, res) => {
     try {
         let request = req.body
