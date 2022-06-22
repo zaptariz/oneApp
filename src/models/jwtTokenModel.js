@@ -10,10 +10,6 @@ const jwtToken = mongoose.Schema({
     tokenId: {
         type: String,
         index: true
-    },
-    isDeleted: {
-        type: Boolean,
-        default: false
     }
 })
 

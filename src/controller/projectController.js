@@ -6,16 +6,24 @@ const jsonwebtoken = require('jsonwebtoken')
 const { jwtTokenModel } = require('../models/jwtTokenModel')
 const isGithubURL = require('is-github-url')
 const validurl = require('valid-url')
+const { response } = require('express')
 
 
 exports.selfTab = async (req, res) => {
     try {
         let findUserByHeader = await jwtTokenModel.findOne({ id: req.headers.authtoken })
         let getSignedUser = await projectModel.find({ userId: findUserByHeader.userId })
-        if (!getSignedUser) {
+        let lengthOf = getSignedUser.length
+        if (!lengthOf) {
             throw new Error(' You dont have any projects ')
         }
-        return res.status(StatusCodes.OK).send(messageFormatter.successFormat(getSignedUser, 'selfTab', StatusCodes.OK, 'your all projects'))
+        else {
+            let dataPayload = {
+                Project_Name: getSignedUser.title,
+                github_Link: getSignedUser
+            }
+            return res.status(StatusCodes.OK).send(messageFormatter.successFormat(getSignedUser, 'selfTab', StatusCodes.OK, 'your all projects'))
+        }
     }
     catch (error) {
         return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'selfTab', StatusCodes.NOT_FOUND))
@@ -25,17 +33,29 @@ exports.selfTab = async (req, res) => {
 exports.othersProject = async (req, res) => {
     try {
         let AllTheOthersProjects = []
-        let verifyToken = await jsonwebtoken.verify(req.headers.authtoken, "secret")
+        let verifyToken = await new jsonwebtoken.verify(req.headers.authtoken, "secret")
         let allProjects = await projectModel.find({})
         if (!allProjects) {
-            throw new Error(' now project here still now ')
+            throw new Error(' no projects here still now, let add yours')
         }
         else {
             allProjects.forEach(projects => {
-                if (verifyToken.id != projects.userId)
+                if (verifyToken.id != projects.userId) {
                     AllTheOthersProjects.push(projects)
-            });
-            return res.status(StatusCodes.OK).send(messageFormatter.successFormat(AllTheOthersProjects, 'othersProject', StatusCodes.OK, 'All Others projects'))
+                }
+            })
+            let responsePayload = []
+            AllTheOthersProjects.forEach(element => {
+                responsePayload.push({
+                    ProjectPostedBy: element.userId,
+                    ProjectTitle: element.title,
+                    ProjectGithubLink: element.githublink,
+                    ProjectDemoLink: element.demolink,
+                    projectDescription: element.description,
+                    projectDescriptionByMedia: element.descriptionByMedia
+                })
+            })
+            return res.status(StatusCodes.OK).send(messageFormatter.successFormat(responsePayload, 'othersProject', StatusCodes.OK, 'Now you can see all the Others projects'))
         }
     }
     catch (error) {
@@ -47,8 +67,6 @@ exports.addProjects = async (req, res) => {
     try {
         let request = req.body
         let getUserIdFromToken = await jwtTokenModel.findOne({ id: req.headers.authtoken })
-        // let checkUserIsSignedUser = await jwtTokenModel.findOne({ id: req.headers.authtoken })
-        // if(checkUserIsSignedUser.userId == checkUserIsSignedUser)
         if (!validurl.isUri(request.demolink))
             throw new Error('check the Demo URL ')
         if (!isGithubURL(request.githublink))
@@ -68,6 +86,7 @@ exports.addProjects = async (req, res) => {
             })
             await projectModel(dataPayload).save()
             let responsePayload = {
+                ProjectPostedBy: dataPayload.userId,
                 title: dataPayload.title,
                 demolink: dataPayload.demolink,
                 githublink: dataPayload.githublink,
@@ -132,7 +151,7 @@ exports.deleteProject = async (req, res) => {
             return res.status(StatusCodes.UNAUTHORIZED).send(messageFormatter.errorMsgFormat(errorMessage, 'updateProject', StatusCodes.UNAUTHORIZED))
         }
         await projectModel.deleteOne({ _id: req.params.id })
-        res.status(StatusCodes.OK).send(messageFormatter.successFormat('project was deleted','deleteproject',StatusCodes.OK,'project was deleted successfully'))
+        res.status(StatusCodes.OK).send(messageFormatter.successFormat('project was deleted', 'deleteproject', StatusCodes.OK, 'project was deleted successfully'))
     } catch (error) {
         return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'deleteProject', StatusCodes.BAD_REQUEST))
     }

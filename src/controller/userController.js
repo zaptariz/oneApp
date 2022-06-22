@@ -86,8 +86,12 @@ exports.signin = async (req, res) => {
 exports.signout = async (req, res) => {
     try {
         //Delete the  Jwt token for log out
-        await jwtTokenModel.deleteMany({ token: req.headers.authorization })
-        return res.status(StatusCodes.OK).send(messageFormatter.successFormat('', 'logout', StatusCodes.OK, " logged out successfully "))
+        let logout = await jwtTokenModel.deleteMany({ tokenId: req.headers.authtoken })
+        if (logout.deletedCount > 0)
+            return res.status(StatusCodes.OK).send(messageFormatter.successFormat('logged out successfully', 'logout', StatusCodes.OK, " Bubye "))
+        else {
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(messageFormatter.successFormat('No user logged in this id', 'logout', StatusCodes.INTERNAL_SERVER_ERROR, " No Data Found "))
+        }
     }
     catch (error) {
         return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'login', StatusCodes.BAD_REQUEST))
