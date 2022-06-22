@@ -8,7 +8,7 @@ const messageFormatter = require('../utils/messageFormatter')
 const router = express.Router()
 const adminAuthenticator = require('../middleware/adminAuthentication')
 
-router.get('/selfTab', (req, res) => {
+router.get('/selfTab',adminAuthenticator, (req, res) => {
     try {
         return projectController.selfTab(req, res)
     } catch (error) {

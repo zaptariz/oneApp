@@ -13,7 +13,7 @@ exports.selfTab = async (req, res) => {
     try {
         let findUserByHeader = await jwtTokenModel.findOne({ id: req.headers.authtoken })
         let getSignedUser = await projectModel.find({ userId: findUserByHeader.userId })
-        if (getSignedUser) {
+        if (!getSignedUser) {
             throw new Error(' You dont have any projects ')
         }
         return res.status(StatusCodes.OK).send(messageFormatter.successFormat(getSignedUser, 'selfTab', StatusCodes.OK, 'your all projects'))
@@ -133,6 +133,7 @@ exports.deleteProject = async (req, res) => {
             return res.status(StatusCodes.UNAUTHORIZED).send(messageFormatter.errorMsgFormat(errorMessage, 'updateProject', StatusCodes.UNAUTHORIZED))
         }
         await projectModel.deleteOne({ _id: req.params.id })
+        res.status(StatusCodes.OK).send(messageFormatter.successFormat('project was deleted','deleteproject',StatusCodes.OK,'project was deleted successfully'))
     } catch (error) {
         return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'deleteProject', StatusCodes.BAD_REQUEST))
     }
