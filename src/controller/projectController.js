@@ -6,7 +6,6 @@ const jsonwebtoken = require('jsonwebtoken')
 const { jwtTokenModel } = require('../models/jwtTokenModel')
 const isGithubURL = require('is-github-url')
 const validurl = require('valid-url')
-const { userModel } = require('../models/userModel')
 
 
 exports.selfTab = async (req, res) => {
