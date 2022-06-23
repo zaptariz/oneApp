@@ -30,11 +30,15 @@ const userSchema = new mongoose.Schema({
             type: String,
             required: true
         },
-        timestamp: {
-            type: Date,
-            default: Date.now()
-        }
+        filePath: {
+            type: String,
+        },
+    }
+}, {
+    timestamps: {
+        createdAt: true,
+        updatedAt: true
     }
 })
 
-exports.userModel = new mongoose.model('user',userSchema)
+exports.userModel = new mongoose.model('user', userSchema)

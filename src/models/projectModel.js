@@ -34,15 +34,14 @@ const projectSchema = new mongoose.Schema({
             type: String,
             required: true
         },
-        filePath: String,
-        timestamp: {
-            type: Date,
-            default: Date.now()
+        filePath: {
+            type: String,
         }
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now()
+    }
+},{
+    timestamps:{
+        createdAt: true,
+        updatedAt: true
     }
 })
 

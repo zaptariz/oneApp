@@ -25,11 +25,11 @@ router.post('/addproject', adminAuthenticator, upload.single('desc'), (req, res)
         
         let { error } = joiValidation.addProject(req.body)
         if (error) {
-            return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.validationFormat(error, 'addProjectJoiValidation', StatusCodes.BAD_REQUEST))
+            return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.validationFormat(error, 'addProject', StatusCodes.BAD_REQUEST))
         }
         return projectController.addProjects(req, res)
     } catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'selfTab', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'addProject', StatusCodes.BAD_REQUEST))
     }
 })
 
@@ -45,7 +45,7 @@ router.put('/updateproject/:id', adminAuthenticator, upload.single('desc'), (req
     try {
         return projectController.updateProjectDetails(req, res)
     } catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'allProjects', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'updateProject', StatusCodes.BAD_REQUEST))
     }
 })
 
@@ -53,7 +53,7 @@ router.delete('/deleteproject/:id', adminAuthenticator, upload.single('desc'), (
     try {
         return projectController.deleteProject(req, res)
     } catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'allProjects', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'deleteProject', StatusCodes.BAD_REQUEST))
     }
 })
 module.exports = router

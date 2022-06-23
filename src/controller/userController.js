@@ -26,7 +26,7 @@ exports.signup = async (req, res) => {
                 profilePhoto: {
                     fileName: req.file.originalname,
                     fileType: req.file.mimetype,
-                    filePath: req.filePath,
+                    filePath: '/' + req.file.path,
                     fileSize: fileformatter(req.file.size, 2)
                 }
             })
@@ -38,7 +38,7 @@ exports.signup = async (req, res) => {
                 LastName: dataPayload.lastName,
                 EMailID: dataPayload.emailId
             }
-            return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.successFormat(responsePayload, 'signup', StatusCodes.CREATED, 'registration successfully completed'))
+            return res.status(StatusCodes.CREATED).send(messageFormatter.successFormat(responsePayload, 'signup', StatusCodes.CREATED, 'registration successfully completed'))
         }
     } catch (error) {
         return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signup', StatusCodes.BAD_REQUEST))
@@ -89,24 +89,28 @@ exports.signout = async (req, res) => {
         //Delete the  Jwt token for log out
         let logout = await jwtTokenModel.deleteMany({ tokenId: req.headers.authtoken })
         if (logout.deletedCount > 0)
-            return res.status(StatusCodes.OK).send(messageFormatter.successFormat('logged out successfully', 'logout', StatusCodes.OK, " Bubye "))
+            return res.status(StatusCodes.OK).send(messageFormatter.successFormat('logged out successfully', 'signout', StatusCodes.OK, " Bubye "))
         else {
             return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(messageFormatter.successFormat('No user logged in this id', 'logout', StatusCodes.INTERNAL_SERVER_ERROR, " No Data Found "))
         }
     }
     catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'login', StatusCodes.BAD_REQUEST))
+        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signout', StatusCodes.BAD_REQUEST))
     }
 }
 
 exports.dashboard = async (req, res) => {
     try {
-        let findUserByHeader = await jwtTokenModel.find({ id: req.headers.authtoken })
-        let getSignedUser = await userModel.findOne({ userId: findUserByHeader.userId })
+        let loggedUserDetails = jsonwebtoken.verify(req.headers.authtoken, 'secret')
+        let getSignedUser = await userModel.findById({ _id: loggedUserDetails.id })
+        if (!getSignedUser)
+            throw new Error(' token Not Found')
         let responsePayload = {
             name: getSignedUser.firstName + " " + getSignedUser.lastName,
             EmailId: getSignedUser.emailId,
-            profilePhoto: getSignedUser.profilePhoto
+            profilePhoto: {
+                fileUrl: getSignedUser.profilePhoto.filePath
+            }
         }
         return res.status(StatusCodes.OK).send(messageFormatter.successFormat(responsePayload, 'dashboard', StatusCodes.OK, "Welcome "))
     } catch (error) {

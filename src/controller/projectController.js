@@ -91,7 +91,7 @@ exports.addProjects = async (req, res) => {
                 description: request.description,
                 descriptionByMedia: {
                     fileName: req.file.originalname,
-                    filePath: '/'+req.file.path,
+                    filePath: '/' + req.file.path,
                     fileType: req.file.mimetype,
                     fileSize: fileformatter(req.file.size, 2)
                 }
@@ -136,7 +136,7 @@ exports.updateProjectDetails = async (req, res) => {
                 descriptionByMedia: {
                     fileName: req.file.originalname,
                     fileType: req.file.mimetype,
-                    fileType: '/'+req.file.filepath,
+                    filePath: '/' + req.file.filepath,
                 }
             }
             res.status(StatusCodes.OK).send(messageFormatter.successFormat(responsePayload, 'updateProjectDetails', StatusCodes.OK, 'Your changes are updated'))
@@ -162,7 +162,7 @@ exports.deleteProject = async (req, res) => {
         let userIdFromToken = await jwtTokenModel.findOne({ id: userIdFromProject.userId })
         if (!(JSON.stringify(userIdFromProject.userId) == JSON.stringify(userIdFromToken.userId))) {
             let errorMessage = 'Unauthorized access, you are not a authorized person to Delete this project '
-            return res.status(StatusCodes.UNAUTHORIZED).send(messageFormatter.errorMsgFormat(errorMessage, 'updateProject', StatusCodes.UNAUTHORIZED))
+            return res.status(StatusCodes.UNAUTHORIZED).send(messageFormatter.errorMsgFormat(errorMessage, 'deleteProject', StatusCodes.UNAUTHORIZED))
         }
         await projectModel.deleteOne({ _id: req.params.id })
         res.status(StatusCodes.OK).send(messageFormatter.successFormat('project was deleted', 'deleteproject', StatusCodes.OK, 'project was deleted successfully'))
