@@ -5,6 +5,7 @@ const { StatusCodes } = require('http-status-codes')
 const { userModel } = require('../models/userModel')
 const { fileformatter } = require('../middleware/fileFormatter')
 const { jwtTokenModel } = require('../models/jwtTokenModel')
+const { response } = require('../helper/responseHelper')
 exports.signup = async (req, res) => {
     try {
         let request = req.body
@@ -79,13 +80,15 @@ exports.signin = async (req, res) => {
                     await jwtTokenModel.findOneAndUpdate({ userId: checkEmailIsRegistered.id, tokenId: responsePayload.tokenId })
                 else
                     await jwtTokenModel(responsePayload).save()
-                return res.status(StatusCodes.OK)
-                    .send(messageFormatter.successFormat(
-                        responsePayload,
-                        'login',
-                        StatusCodes.OK,
-                        `logged in successfully, Welcome ${checkEmailIsRegistered.firstName} ${checkEmailIsRegistered.lastName}`
-                    ))
+                    req = responsePayload,'login',StatusCodes.OK,`logged in successfully, Welcome ${checkEmailIsRegistered.firstName} ${checkEmailIsRegistered.lastName}`;
+                    return res.status(response.status).send(response.send)
+                // return res.status(StatusCodes.OK)
+                //     .send(messageFormatter.successFormat(
+                //         responsePayload,
+                //         'login',
+                //         StatusCodes.OK,
+                //         `logged in successfully, Welcome ${checkEmailIsRegistered.firstName} ${checkEmailIsRegistered.lastName}`
+                //     ))
             }
             else throw new Error('credential not matched')
         }
