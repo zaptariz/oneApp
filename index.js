@@ -7,6 +7,7 @@ const application = express()
 application.use(express.json())
 application.use(cors())
 const router = require('./src/routes/index')
+application.use(express.static('.'))
 const db = () => {
     try {
         mongoose.connect(config.db+config.dbConnection + config.database, (error, response) => {

@@ -17,7 +17,7 @@ router.get('/selfTab',adminAuthenticator, (req, res) => {
 })
 
 const upload = multer({
-    storage: fileUploader.fileStorage, fileFilter: fileUploader.fileFilter
+    storage: fileUploader.fileStorageForDescriptionMedia, fileFilter: fileUploader.fileFilter
 })
 
 router.post('/addproject', adminAuthenticator, upload.single('desc'), (req, res) => {

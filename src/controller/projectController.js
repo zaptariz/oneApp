@@ -6,23 +6,33 @@ const jsonwebtoken = require('jsonwebtoken')
 const { jwtTokenModel } = require('../models/jwtTokenModel')
 const isGithubURL = require('is-github-url')
 const validurl = require('valid-url')
-const { response } = require('express')
-
 
 exports.selfTab = async (req, res) => {
     try {
         let findUserByHeader = await jwtTokenModel.findOne({ id: req.headers.authtoken })
-        let getSignedUser = await projectModel.find({ userId: findUserByHeader.userId })
-        let lengthOf = getSignedUser.length
+        let projectsBySelf = await projectModel.find({ userId: findUserByHeader.userId })
+        let lengthOf = projectsBySelf.length
         if (!lengthOf) {
             throw new Error(' You dont have any projects ')
         }
         else {
-            let dataPayload = {
-                Project_Name: getSignedUser.title,
-                github_Link: getSignedUser
-            }
-            return res.status(StatusCodes.OK).send(messageFormatter.successFormat(getSignedUser, 'selfTab', StatusCodes.OK, 'your all projects'))
+            let responsePayload = []
+            projectsBySelf.forEach(projectsElement => {
+                responsePayload.push({
+                    projectId: projectsElement._id,
+                    project_Name: projectsElement.title,
+                    githubLink: projectsElement.githublink,
+                    demoLink: projectsElement.demolink,
+                    description: projectsElement.description,
+                    descriptionByMedia: {
+                        fileName: projectsElement.descriptionByMedia.fileName,
+                        fileType: projectsElement.descriptionByMedia.fileType,
+                        fileSize: projectsElement.descriptionByMedia.fileSize,
+                        filePath: projectsElement.descriptionByMedia.filePath
+                    }
+                })
+            })
+            return res.status(StatusCodes.OK).send(messageFormatter.successFormat(responsePayload, 'selfTab', StatusCodes.OK, 'your all projects'))
         }
     }
     catch (error) {
@@ -47,6 +57,7 @@ exports.othersProject = async (req, res) => {
             let responsePayload = []
             AllTheOthersProjects.forEach(element => {
                 responsePayload.push({
+                    projectId: element._id,
                     ProjectPostedBy: element.userId,
                     ProjectTitle: element.title,
                     ProjectGithubLink: element.githublink,
@@ -80,6 +91,7 @@ exports.addProjects = async (req, res) => {
                 description: request.description,
                 descriptionByMedia: {
                     fileName: req.file.originalname,
+                    filePath: '/'+req.file.path,
                     fileType: req.file.mimetype,
                     fileSize: fileformatter(req.file.size, 2)
                 }
@@ -92,8 +104,9 @@ exports.addProjects = async (req, res) => {
                 githublink: dataPayload.githublink,
                 description: dataPayload.description,
                 descriptionByMedia: {
-                    fileName: req.file.originalname,
-                    fileType: req.file.mimetype,
+                    fileName: dataPayload.descriptionByMedia.fileName,
+                    fileType: dataPayload.descriptionByMedia.fileType,
+                    filePath: dataPayload.descriptionByMedia.filePath
                 }
             }
             return res.status(200).send(messageFormatter.successFormat(responsePayload, 'addProjects', StatusCodes.OK, "Project was added successfully"))
@@ -123,6 +136,7 @@ exports.updateProjectDetails = async (req, res) => {
                 descriptionByMedia: {
                     fileName: req.file.originalname,
                     fileType: req.file.mimetype,
+                    fileType: '/'+req.file.filepath,
                 }
             }
             res.status(StatusCodes.OK).send(messageFormatter.successFormat(responsePayload, 'updateProjectDetails', StatusCodes.OK, 'Your changes are updated'))

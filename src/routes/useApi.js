@@ -8,7 +8,7 @@ const messageFormatter = require('../utils/messageFormatter')
 const router = express.Router()
 const adminAuthenticator = require('../middleware/adminAuthentication')
 
-const upload = multer({ storage: fileUploader.fileStorage, fileFilter: fileUploader.fileFilter })
+const upload = multer({ storage: fileUploader.fileStorageForProfilePhoto, fileFilter: fileUploader.fileFilter })
 
 router.post('/signup', upload.single('profilephoto'), (req, res) => {
     try {

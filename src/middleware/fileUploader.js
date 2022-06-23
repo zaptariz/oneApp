@@ -1,14 +1,25 @@
 const multer = require('multer');
 
 /******************************************************
-to create a file_storage_engine => "filestorage"
+to create a file_storage_engine for => "Profile Photo"
 *******************************************************/
-const fileStorage = multer.diskStorage({
+const fileStorageForProfilePhoto = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null,'');
+        cb(null, 'media/uploads/profilePhoto');
     },
     filename: (req, file, cb) => {
-        cb(null, new Date().toISOString().replace(/:/g, '-') + '-' + file.originalname)
+        cb(null, /*new Date().toISOString().replace(/:/g, '-') + '-' +*/ file.originalname)
+    }
+})
+/******************************************************
+to create a file_storage_engine for => "Decscription by media"
+*******************************************************/
+const fileStorageForDescriptionMedia = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'media/uploads/descriptionByMedia');
+    },
+    filename: (req, file, cb) => {
+        cb(null,/* new Date().toISOString().replace(/:/g, '-') + '-' + */file.originalname)
     }
 })
 
@@ -23,7 +34,8 @@ const fileFilter = (req, file, callback) => {
     }
 }
 
-module.exports ={
-    fileStorage,
+module.exports = {
+    fileStorageForDescriptionMedia,
+    fileStorageForProfilePhoto,
     fileFilter
 }

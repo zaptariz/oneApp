@@ -26,6 +26,7 @@ exports.signup = async (req, res) => {
                 profilePhoto: {
                     fileName: req.file.originalname,
                     fileType: req.file.mimetype,
+                    filePath: req.filePath,
                     fileSize: fileformatter(req.file.size, 2)
                 }
             })
@@ -54,16 +55,16 @@ exports.signin = async (req, res) => {
             if (Decrypt) {
                 let tokenPayload = {
                     id: checkEmailIsRegistered.id,
-                    tokenId: checkEmailIsRegistered.emailId
+                    emailId: checkEmailIsRegistered.emailId
                 }
-                let jwtToken = jsonwebtoken.sign(tokenPayload, "secret")
+                let jwtToken = await jsonwebtoken.sign(tokenPayload, "secret")
 
                 let responsePayload = {
                     userId: checkEmailIsRegistered.id,
                     tokenId: jwtToken
                 }
                 //If Token exists, Delete the previous one, and lets create a new one
-                let checkTokenExists = await jwtTokenModel.findOne({ userId: checkEmailIsRegistered.id })
+                let checkTokenExists = await jwtTokenModel.findOne({ userId: checkEmailIsRegistered._id })
                 if (checkTokenExists)
                     await jwtTokenModel.findOneAndUpdate({ userId: checkEmailIsRegistered.id, tokenId: responsePayload.tokenId })
                 else
@@ -100,7 +101,7 @@ exports.signout = async (req, res) => {
 
 exports.dashboard = async (req, res) => {
     try {
-        let findUserByHeader = await jwtTokenModel.findOne({ id: req.headers.authtoken })
+        let findUserByHeader = await jwtTokenModel.find({ id: req.headers.authtoken })
         let getSignedUser = await userModel.findOne({ userId: findUserByHeader.userId })
         let responsePayload = {
             name: getSignedUser.firstName + " " + getSignedUser.lastName,

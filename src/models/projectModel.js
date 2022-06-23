@@ -34,15 +34,16 @@ const projectSchema = new mongoose.Schema({
             type: String,
             required: true
         },
+        filePath: String,
         timestamp: {
             type: Date,
             default: Date.now()
         }
     },
-        createdAt: {
+    createdAt: {
         type: Date,
         default: Date.now()
     }
 })
 
-exports.projectModel = new mongoose.model('projectsByUsers',projectSchema)
+exports.projectModel = new mongoose.model('projectsByUsers', projectSchema)
