@@ -1,59 +1,18 @@
 const express = require('express')
 const multer = require('multer')
-const joiValidation = require('../helper/joiValidation')
 const fileUploader = require('../middleware/fileUploader')
-const { StatusCodes } = require('http-status-codes')
-const projectController = require('../controller/projectController')
-const messageFormatter = require('../utils/messageFormatter')
 const router = express.Router()
 const adminAuthenticator = require('../middleware/adminAuthentication')
-
-router.get('/selfTab',adminAuthenticator, (req, res) => {
-    try {
-        return projectController.selfTab(req, res)
-    } catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'selfTab', StatusCodes.BAD_REQUEST))
-    }
-})
+const projectValidatinMiddleware = require('../middleware/projectValidationMiddleware')
 
 const upload = multer({
     storage: fileUploader.fileStorageForDescriptionMedia, fileFilter: fileUploader.fileFilter
 })
 
-router.post('/addproject', adminAuthenticator, upload.single('desc'), (req, res) => {
-    try {
-        
-        let { error } = joiValidation.addProject(req.body)
-        if (error) {
-            return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.validationFormat(error, 'addProject', StatusCodes.BAD_REQUEST))
-        }
-        return projectController.addProjects(req, res)
-    } catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'addProject', StatusCodes.BAD_REQUEST))
-    }
-})
+router.get('/selfTab', adminAuthenticator, projectValidatinMiddleware.selfTab)
+router.post('/addproject', adminAuthenticator, upload.single('desc'), projectValidatinMiddleware.addProject)
+router.get('/allprojects', adminAuthenticator, projectValidatinMiddleware.updateProject)
+router.put('/updateproject/:id', adminAuthenticator, upload.single('desc'), projectValidatinMiddleware.updateProject)
+router.delete('/deleteproject/:id', adminAuthenticator, upload.single('desc'), projectValidatinMiddleware.deleteProject)
 
-router.get('/allprojects', adminAuthenticator, (req, res) => {
-    try {
-        return projectController.othersProject(req, res)
-    } catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'allProjects', StatusCodes.BAD_REQUEST))
-    }
-})
-
-router.put('/updateproject/:id', adminAuthenticator, upload.single('desc'), (req, res) => {
-    try {
-        return projectController.updateProjectDetails(req, res)
-    } catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'updateProject', StatusCodes.BAD_REQUEST))
-    }
-})
-
-router.delete('/deleteproject/:id', adminAuthenticator, upload.single('desc'), (req, res) => {
-    try {
-        return projectController.deleteProject(req, res)
-    } catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'deleteProject', StatusCodes.BAD_REQUEST))
-    }
-})
 module.exports = router

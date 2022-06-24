@@ -1,53 +1,15 @@
 const express = require('express')
 const multer = require('multer')
-const joiValidation = require('../helper/joiValidation')
 const fileUploader = require('../middleware/fileUploader')
-const { StatusCodes } = require('http-status-codes')
-const userController = require('../controller/userController')
-const messageFormatter = require('../utils/messageFormatter')
 const router = express.Router()
 const adminAuthenticator = require('../middleware/adminAuthentication')
+const userValidationMiddleware = require('../middleware/userValidationMiddleware')
 
 const upload = multer({ storage: fileUploader.fileStorageForProfilePhoto, fileFilter: fileUploader.fileFilter })
 
-router.post('/signup', upload.single('profilephoto'), (req, res) => {
-    try {
-        let { error } = joiValidation.signup(req.body)
-        if(error){
-            return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.validationFormat(error, 'signup', StatusCodes.BAD_REQUEST))
-        }
-        return userController.signup(req,res)
-    } catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signup', StatusCodes.BAD_REQUEST))
-    }
-})
-
-router.post('/signin', (req, res) => {
-    try {
-        let { error } = joiValidation.signin(req.body)
-        if(error){
-            return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.validationFormat(error, 'signin', StatusCodes.BAD_REQUEST))
-        }
-        return userController.signin(req,res)
-    } catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signin', StatusCodes.BAD_REQUEST))
-    }
-})
-
-router.delete('/signout', adminAuthenticator,(req, res) => {
-    try {
-        return userController.signout(req,res)
-    } catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signout', StatusCodes.BAD_REQUEST))
-    }
-})
-
-router.get('/dashboard', adminAuthenticator,(req, res) => {
-    try {
-        return userController.dashboard(req,res)
-    } catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).send(messageFormatter.errorMsgFormat(error.message, 'signout', StatusCodes.BAD_REQUEST))
-    }
-})
+router.post('/signup', upload.single('profilephoto'), userValidationMiddleware.signup)
+router.post('/signin', userValidationMiddleware.signin)
+router.delete('/signout', adminAuthenticator, userValidationMiddleware.signOut)
+router.get('/dashboard', adminAuthenticator, userValidationMiddleware.dashboard)
 
 module.exports = router
