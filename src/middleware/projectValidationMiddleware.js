@@ -18,7 +18,7 @@ exports.selfTab = (req, res) => {
 
 exports.allProjects = (req, res) => {
     try {
-        return projectController.othersProject(req, res)
+        return projectController.allProjects(req, res)
     } catch (error) {
         return res.status(StatusCodes.BAD_REQUEST)
             .send(messageFormatter.errorMsgFormat(

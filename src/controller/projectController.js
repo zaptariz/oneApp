@@ -1,16 +1,16 @@
-const { StatusCodes } = require('http-status-codes')
+const jwtVerify = require('../helper/jwtVerificationHelper')
+const isGithubURL = require('is-github-url')
+const validurl = require('valid-url')
 const messageFormatter = require('../utils/messageFormatter')
 const { projectModel } = require('../models/projectModel')
 const { fileformatter } = require('../middleware/fileFormatter')
-const jsonwebtoken = require('jsonwebtoken')
 const { jwtTokenModel } = require('../models/jwtTokenModel')
-const isGithubURL = require('is-github-url')
-const validurl = require('valid-url')
+const { StatusCodes } = require('http-status-codes')
 
 exports.selfTab = async (req, res) => {
     try {
-        let findUserByHeader = await jwtTokenModel.findOne({ id: req.headers.authtoken })
-        let projectsBySelf = await projectModel.find({ userId: findUserByHeader.userId })
+        let findUserByHeader = await jwtVerify.verify(req, 'secret')
+        let projectsBySelf = await projectModel.find({ userId: findUserByHeader.id })
         let lengthOf = projectsBySelf.length
         if (!lengthOf) {
             throw new Error(' You dont have any projects ')
@@ -40,33 +40,28 @@ exports.selfTab = async (req, res) => {
     }
 }
 
-exports.othersProject = async (req, res) => {
+exports.allProjects = async (req, res) => {
     try {
         let AllTheOthersProjects = []
-        let verifyToken = await new jsonwebtoken.verify(req.headers.authtoken, "secret")
+        let verifyToken = await jwtVerify.verify(req, 'secret')
         let allProjects = await projectModel.find({})
-        if (!allProjects) {
-            throw new Error(' no projects here still now, let add yours')
-        }
+        if (!allProjects.length) throw new Error(' no projects here still now, let add yours')
         else {
-            allProjects.forEach(projects => {
-                if (verifyToken.id != projects.userId) {
-                    AllTheOthersProjects.push(projects)
-                }
+            allProjects.forEach(element => {
+                if (verifyToken.id != element.userId)
+                    AllTheOthersProjects.push({
+                        projectId: element._id,
+                        ProjectPostedBy: element.userId,
+                        ProjectTitle: element.title,
+                        ProjectGithubLink: element.githublink,
+                        ProjectDemoLink: element.demolink,
+                        projectDescription: element.description,
+                        projectDescriptionByMedia: element.descriptionByMedia
+                    })
             })
-            let responsePayload = []
-            AllTheOthersProjects.forEach(element => {
-                responsePayload.push({
-                    projectId: element._id,
-                    ProjectPostedBy: element.userId,
-                    ProjectTitle: element.title,
-                    ProjectGithubLink: element.githublink,
-                    ProjectDemoLink: element.demolink,
-                    projectDescription: element.description,
-                    projectDescriptionByMedia: element.descriptionByMedia
-                })
-            })
-            return res.status(StatusCodes.OK).send(messageFormatter.successFormat(responsePayload, 'othersProject', StatusCodes.OK, 'Now you can see all the Others projects'))
+            if (AllTheOthersProjects.length==0)
+                throw new Error(' there is no project by others ')
+            else return res.status(StatusCodes.OK).send(messageFormatter.successFormat(AllTheOthersProjects, 'othersProject', StatusCodes.OK, 'Now you can see all the Others projects'))
         }
     }
     catch (error) {
@@ -77,14 +72,14 @@ exports.othersProject = async (req, res) => {
 exports.addProjects = async (req, res) => {
     try {
         let request = req.body
-        let getUserIdFromToken = await jwtTokenModel.findOne({ id: req.headers.authtoken })
+        let getUserIdFromToken = await jwtVerify.verify(req, 'secret')
         if (!validurl.isUri(request.demolink))
             throw new Error('check the Demo URL ')
         if (!isGithubURL(request.githublink))
             throw new Error('check the github URL ')
         else {
             let dataPayload = new projectModel({
-                userId: getUserIdFromToken.userId,
+                userId: getUserIdFromToken.id,
                 title: request.title,
                 demolink: request.demolink,
                 githublink: request.githublink,
@@ -118,37 +113,38 @@ exports.addProjects = async (req, res) => {
 
 exports.updateProjectDetails = async (req, res) => {
     try {
-        let userIdFromProject = await projectModel.findOne({ _id: req.params.id })
-        let userIdFromToken = await jwtTokenModel.findOne({ id: userIdFromProject.userId })
-        if (!(JSON.stringify(userIdFromProject.userId) == JSON.stringify(userIdFromToken.userId))) {
+        let userIdFromProject = await projectModel.findById({ _id: req.params.id })
+        if (!userIdFromProject) throw new Error(' project Not found')
+        let userIdFromToken = await jwtVerify.verify(req, 'secret')
+        if (!(JSON.stringify(userIdFromProject.userId) == JSON.stringify(userIdFromToken.id))) {
             let errorMessage = 'Unauthorized access, you are not a authorized person to modifiy this project '
             return res.status(StatusCodes.UNAUTHORIZED).send(messageFormatter.errorMsgFormat(errorMessage, 'updateProject', StatusCodes.UNAUTHORIZED))
         }
-        await projectModel.findOneAndUpdate({ _id: req.params.id }, req.body)
-        let dataPayload = await projectModel.findOne({ _id: req.params.id })
         if (req.file) {
             //with mediaFiles changes response 
             let responsePayload = {
-                title: dataPayload.title,
-                demolink: dataPayload.demolink,
-                githublink: dataPayload.githublink,
-                description: dataPayload.description,
+                title: req.body.title,
+                demolink: req.body.demolink,
+                githublink: req.body.githublink,
+                description: req.body.description,
                 descriptionByMedia: {
                     fileName: req.file.originalname,
                     fileType: req.file.mimetype,
-                    filePath: '/' + req.file.filepath,
+                    filePath: '/'+req.file.path,
                 }
             }
+            await projectModel.findByIdAndUpdate({ _id: req.params.id }, responsePayload)
             res.status(StatusCodes.OK).send(messageFormatter.successFormat(responsePayload, 'updateProjectDetails', StatusCodes.OK, 'Your changes are updated'))
         }
         else {
             //without media updation response
             let responsePayload = {
-                title: dataPayload.title,
-                demolink: dataPayload.demolink,
-                githublink: dataPayload.githublink,
-                description: dataPayload.description,
+                title: req.body.title,
+                demolink: req.body.demolink,
+                githublink: req.body.githublink,
+                description: req.body.description,
             }
+            await projectModel.findByIdAndUpdate({ _id: req.params.id }, responsePayload)
             res.status(StatusCodes.OK).send(messageFormatter.successFormat(responsePayload, 'updateProjectDetails', StatusCodes.OK, 'Your changes are updated'))
         }
     } catch (error) {
@@ -159,8 +155,9 @@ exports.updateProjectDetails = async (req, res) => {
 exports.deleteProject = async (req, res) => {
     try {
         let userIdFromProject = await projectModel.findOne({ _id: req.params.id })
-        let userIdFromToken = await jwtTokenModel.findOne({ id: userIdFromProject.userId })
-        if (!(JSON.stringify(userIdFromProject.userId) == JSON.stringify(userIdFromToken.userId))) {
+        if (!userIdFromProject) throw new Error(' project not found ')
+        let userIdFromToken = await jwtVerify.verify(req, 'secret')
+        if (!(JSON.stringify(userIdFromProject.userId) == JSON.stringify(userIdFromToken.id))) {
             let errorMessage = 'Unauthorized access, you are not a authorized person to Delete this project '
             return res.status(StatusCodes.UNAUTHORIZED).send(messageFormatter.errorMsgFormat(errorMessage, 'deleteProject', StatusCodes.UNAUTHORIZED))
         }

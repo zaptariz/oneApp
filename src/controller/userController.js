@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt')
 const jsonwebtoken = require('jsonwebtoken')
 const messageFormatter = require('../utils/messageFormatter')
+const jwtVerify = require('../helper/jwtVerificationHelper')
 const { StatusCodes } = require('http-status-codes')
 const { userModel } = require('../models/userModel')
 const { fileformatter } = require('../middleware/fileFormatter')
@@ -101,7 +102,7 @@ exports.signout = async (req, res) => {
 
 exports.dashboard = async (req, res) => {
     try {
-        let loggedUserDetails = jsonwebtoken.verify(req.headers.authtoken, 'secret')
+        let loggedUserDetails = await jwtVerify.verify(req, 'secret')
         let getSignedUser = await userModel.findById({ _id: loggedUserDetails.id })
         if (!getSignedUser)
             throw new Error(' token Not Found')
